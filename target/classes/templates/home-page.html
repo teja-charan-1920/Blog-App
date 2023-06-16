@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/springsecurity">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <style>
+    .postdiv {
+          background-color: lightgrey;
+          width: 800px;
+          height:170px;
+          border: 5px solid ;
+          padding: 10px;
+          margin: 20px;
+    }
+    .post-container {
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(700px, 1fr));
+         grid-gap: 20px;
+    }
+    .postdiv > * {
+        margin-bottom: 5px;
+    }
+
+    .postdiv form {
+        display: box;
+        justify-content: flex-start;
+    }
+    .menu,.sort,.filters{
+        overflow:auto;
+    }
+    .search-form{
+        margin-top:15x;
+        margin-bottom:15px;
+        float:right;
+        margin-right:10px;
+    }
+    .sort{
+        margin-top:0px;
+        float:right;
+        margin-right:50px;
+    }
+    .navigation{
+        display:flex;
+        justify-content:space-around;
+    }
+    .filters{
+        display:flex;
+        margin-left:20px;
+    }
+    .new-post{
+        margin-bottom:20px;
+        margin-left:20px;
+    }
+</style>
+
+</head>
+<body>
+<h1>My Blog Application</h1>
+<nav class="menu">
+    <form class="search-form" th:action="@{/page}">
+        <input id="search" name="searchWord" type="search" th:value="${searchWord}" placeholder="Search">
+        <button type="submit">Search</button>
+    </form>
+    <div class="search-form">
+        <div sec:authorize="isAnonymous()">
+            <form th:action="@{/login}">
+                <input type="submit" value="LogIn">
+            </form>
+        </div>
+        <div sec:authorize="isAuthenticated()">
+            <form action="#" th:action="@{/logout}" method="post">
+                <input type="submit" value="Logout">
+            </form>
+        </div>
+    </div>
+
+    <nav class="sort">
+<!--        <form th:href="@{/page}">-->
+<!--            <select name="field" onchange="window.location.href=this.options[this.selectedIndex].value">-->
+<!--                <option value="" disabled selected>Sort-By</option>-->
+<!--                <option value="/page" th:selected="${field == 'publishedAt'}">PublishedAt</option>-->
+<!--                <option value="author" th:selected="${field == 'author'}">Author</option>-->
+<!--                <option value="excerpt" th:selected="${field == 'excerpt'}">Excerpt</option>-->
+<!--                <option value="title" th:selected="${field == 'title'}">Title</option>-->
+<!--            </select>-->
+<!--        </form>-->
+        <form action="/page" method="GET" id="myForm">
+            <input type="hidden" name="searchWord" th:value="${searchWord}">
+            <select name="field" onchange="updateActionUrl(this)">
+                <option value="" disabled selected>Sort-By</option>
+                <option value="publishedAt" th:selected="${field == 'publishedAt'}">PublishedAt</option>
+                <option value="author" th:selected="${field == 'author'}">Author</option>
+                <option value="excerpt" th:selected="${field == 'excerpt'}">Excerpt</option>
+                <option value="title" th:selected="${field == 'title'}">Title</option>
+            </select>
+        </form>
+
+        <script>
+    function updateActionUrl(selectElement) {
+        const field = selectElement.value;
+        const form = document.getElementById("myForm");
+        const searchWord = form.elements.searchWord.value;
+        const url = new URL(form.action);
+        url.searchParams.set("field", field);
+        if (searchWord !== null && searchWord !== "") {
+            url.searchParams.set("searchWord", searchWord);
+        }
+        window.location.href = url.toString();
+    }
+</script>
+
+    </nav>
+</nav>
+<div class="new-post" >
+    <form th:action="@{/new-post}">
+        <button type="submit">Create-New-post</button>
+    </form>
+</div>
+<nav class="filters">
+    Filters:
+    <form th:action="@{/filter}">
+        <nav>
+            <select name="filter1" >
+                <option value="" disabled selected>Author</option>
+                <span th:each="post: ${authors}">
+                        <option th:value="${post}" th:text="${post}"></option>
+                    </span>
+            </select>
+        </nav>
+        <nav>
+            <select name="filter2" >
+                <option value="" disabled selected>PublishedAt</option>
+                <span th:each="post: ${allPostData}">
+                        <option th:value="${post.publishedAt}" th:text="${post.publishedAt}"></option>
+                    </span>
+            </select>
+        </nav>
+        <nav>
+            <select name="filter3"  multiselect-search="true">
+                <option value="" disabled selected>Tags</option>
+<!--                <span th:each="post: ${allPostData}">-->
+                        <span th:each="tag: ${tags}">
+                            <option th:value="${tag}" th:text="${tag}"></option>
+                        </span>
+<!--                    </span>-->
+            </select>
+        </nav>
+        <input type="submit" value="Apply">
+    </form>
+</nav>
+
+
+<div class="post-container">
+    <div th:each="post: ${posts}">
+        <div class="postdiv">
+            Title:
+            <td th:text="${post.title}"></td>
+            <br>
+            Excerpt:
+            <td th:text="${post.excerpt}"></td>
+            <br>
+            Author:
+            <td th:text="${post.author}"></td>
+            <br>
+            Published on:
+            <td th:text="${#dates.format(post.publishedAt,'yyyy-MM-dd : hh:mm:ss a')}"></td>
+            <br>
+            Tags:<span th:each="tag : ${post.tagsList}">
+                <span th:text="${tag.name}"></span>
+            </span>
+            <form th:action="@{/post}">
+                <div sec:authorize="isAuthenticated()">
+                    <input type="hidden" th:value="*{#authentication.principal.username}" name="email">
+                </div>
+                <input type="hidden" th:value="*{post.postId}" name="Id">
+                <button type="submit">View</button>
+            </form>
+        </div>
+    </div>
+</div>
+<!--<div th:if="${isPagination}">-->
+<!--    <div class="navigation">-->
+<!--        <div th:if="${pageNo>0}">-->
+<!--            <a th:href="@{/{pageNumber}/{pageSize}(pageNumber=${pageNo - 1},pageSize=${currentSize})}">&laquo;-->
+<!--                Previous</a>-->
+<!--        </div>-->
+<!--        <div th:if="${pageNo<totalPages-1}">-->
+<!--            <a th:href="@{/{pageNumber}/{pageSize}(pageNumber=${pageNo + 1},pageSize=${currentSize})}">Next &raquo;</a>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<div th:if="${isPaginationAndSorting}">-->
+    <div class="navigation" th:if="${totalPages>1}">
+        <div th:if="${pageNo>=1}">
+            <a th:href="@{'/page?' + '&pageNumber=' + ${pageNo - 1} + ${field != null && field != '' ? '&field=' + field : ''} + ${searchWord != null && searchWord != '' ? '&searchWord=' + searchWord : ''}}">&laquo;
+                Previous</a>
+        </div>
+        <div th:if="${pageNo<totalPages-1}">
+            <a th:href="@{'/page?' + '&pageNumber=' + ${pageNo + 1} + ${field != null && field != '' ? '&field=' + field : ''} + ${searchWord != null && searchWord != '' ? '&searchWord=' + searchWord : ''}}">Next
+                &raquo;</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

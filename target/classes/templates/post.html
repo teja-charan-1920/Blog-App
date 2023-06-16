@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/springsecurity">
+<head>
+    <meta charset="UTF-8">
+    <title>Posts</title>
+    <style>
+        .postdiv {
+            margin: 10px;
+            border: 10px;
+        }
+        .action{
+            display:flex;
+        }
+        .action-button{
+            display:flex;
+            justify-content:space-around;
+        }
+        #delete{
+            margin-left:10px;
+        }
+
+    </style>
+</head>
+<body>
+<div th:object="${post}">
+    <div class="postdiv">
+        <h1 th:text="${post.title}"></h1>
+        <p><span th:text="${post.author}"></span> <span th:text="${post.publishedAt}"></span></p>
+        <p th:text="${post.content}"></p>
+        <span th:each="tag : ${post.tagsList}">
+            <span th:text="${tag.name}"></span>
+        </span>
+    </div>
+</div>
+<div  sec:authorize="isAuthenticated()" th:object="${user}">
+    <div class="action-button" th:if="${post.author == user.name or #authorization.expression('hasRole(''ADMIN'')')}">
+        <form th:action="@{/editPost}" method="post">
+            <input type="hidden" th:value="${post.postId}" name="id">
+            <button type="submit">EDIT</button>
+        </form>
+        <form th:action="@{/deletePost}">
+            <input type="hidden" th:value="${post.postId}" name="id">
+            <button type="submit">DELETE</button>
+        </form>
+    </div>
+</div>
+<hr>
+<h2>Comments</h2>
+<div th:each="comment: ${comments}">
+    <div class="commentsdiv">
+        Name:<span th:text="${comment.name}"></span><br>
+        Email:<span th:text="${comment.email}"></span><br>
+        Comment:<span th:text="${comment.comment}"></span><br>
+        <div sec:authorize="isAuthenticated()">
+            <div class="action" th:if="${post.author == user.name or #authorization.expression('hasRole(''ADMIN'')')}">
+                <form th:action="@{/editComment}" method="post">
+                    <input type="hidden" th:value="*{comment.id}" name="comment-id">
+                    <input type="hidden" th:value="${comment.postId}" name="post-id">
+                    <button type="submit">Edit</button>
+                </form>
+                <form id="delete" th:action="@{/deleteComment}" method="post">
+                    <input type="hidden" th:value="*{comment.id}" name="comment-id">
+                    <input type="hidden" th:value="${comment.postId}" name="post-id">
+                    <input type="hidden" th:value="*{#authentication.principal.username}" name="gmail">
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+<hr>
+<br>
+<form th:action="@{/typeComment}">
+    <input type="hidden" th:value="*{post.postId}" name="Id">
+    <button type="submit">Add Comment</button>
+</form>
+</body>
+</html>

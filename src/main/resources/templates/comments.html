@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http//www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/springsecurity">
+<head>
+    <meta charset="UTF-8">
+    <title>Comments</title>
+</head>
+<body>
+    <div class ="comment-box">
+      <h2>Comments</h2>
+      <form th:action="@{/addcomment}" method="post" th:object="${comments}">
+        <input type="text" name="name" placeholder="name" th:field="*{name}" required><br>
+          <input type="email" name="email" placeholder="E-Mail" th:field="*{email}" required><br>
+          <textarea name="comment" placeholder="Enter Your Comment" th:field="*{comment}"></textarea><br>
+          <input type="hidden" th:field="*{id}">
+          <input type="hidden" th:value="${post_id}" name="post_id">
+          <div th:if="${isRequestEdit}">
+              <input type="hidden" th:field="*{createdAt}" th:value="${CreatedAt}">
+          </div>
+          <div sec:authorize="isAuthenticated()">
+              <input type="hidden" th:value="*{#authentication.principal.username}" name="gmail">
+          </div>
+          <button type="submit">Submit</button>
+      </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <style>
+             /* Styles for the login form container */
+            .login-container {
+              width: 350px;
+              margin: 0 auto;
+              margin-top:100px;
+              padding: 20px;
+              background-color: #f2f2f2;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+            }
+
+            /* Styles for the form inputs */
+            .login-container input[type="text"],
+            .login-container input[type="password"] {
+              width: 95%;
+              padding: 10px;
+              margin-bottom: 10px;
+              border: 1px solid #ccc;
+              border-radius: 3px;
+            }
+
+            /* Styles for the form submit button */
+            .login-container input[type="submit"] {
+              width: 110%;
+              padding: 20px;
+              background-color: #4CAF50;
+              color: white;
+              border: none;
+              border-radius: 3px;
+              cursor: pointer;
+            }
+
+            .login-container input[type="submit"]:hover {
+              background-color: #45a049;
+            }
+
+            /* Styles for the form validation/error message */
+            .login-container .warning {
+              color: #ff0000;
+              font-size: 14px;
+              margin-bottom: 10px;
+            }
+            .login-container .logout {
+              color: #008000;
+              font-size: 14px;
+              margin-bottom: 10px;
+            }
+
+            .login-container a {
+              color: #0000ff;
+              text-decoration: none;
+            }
+
+            .login-container a:hover {
+              text-decoration: underline;
+            }
+
+    </style>
+</head>
+<body>
+<div align="center" class="login-container">
+  <h1>Login</h1>
+    <div th:if="${param.error}">
+        <div class="warning">
+            Invalid Credentials Please try Again
+        </div>
+        <br>
+    </div>
+    <div th:if="${param.logout}">
+        <div class="logout">
+            You had been logged out
+        </div>
+        <br>
+    </div>
+
+  <form action="#" th:action="@{/authenticateTheUser}" method="post">
+    <input type="text" placeholder="Email" name="username"/><br/><br>
+    <input type="password" placeholder="Password" name="password"/><br/><br>
+    <button type="submit">Submit</button><br/>
+    <p>Doesn't have account? <a th:href="@{/register}">Create one</a></p>
+  </form>
+</div>
+</body>
+</html>

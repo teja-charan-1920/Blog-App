@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+</head>
+<body>
+<h2><p>The username are email already Existed</p>
+    <p>Go back to Register page and Try again With some unique entry.</p>
+    <p>Please Don't get Irritated</p></h2>
+<form th:action="@{/register}">
+    <button type="submit">Back-to-Register</button>
+</form>
+</body>
+</html>
